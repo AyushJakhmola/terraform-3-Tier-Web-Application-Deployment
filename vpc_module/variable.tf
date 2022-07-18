@@ -1,10 +1,11 @@
 variable "vpc_cidr" {
 }
 
-variable "public_subnet_cidr" {
+variable "PublicSubnetCount" {
 }
-
-variable "private_subnet_cidr" {
+variable "CidrBits" { 
+}
+variable "PrivateSubnetCount" {
 }
 
 variable "aws-region" {

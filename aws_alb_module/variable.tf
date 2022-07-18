@@ -10,6 +10,14 @@ variable "aws_public_subnet_ids" {
 variable "instance_id" {  
 }
 
-variable "inbound_protocol" {
-  default = "tcp"
+variable "instance_ami" {  
+}
+
+variable "asgInstanceType" {  
+}
+
+variable "instance_key_name" {  
+}
+
+variable "instance_sg" {  
 }

@@ -2,14 +2,13 @@ resource "aws_security_group" "public_sg" {
   vpc_id = var.sample_vpc_id
   dynamic "ingress" {
     for_each = var.inbound_ports
-    iterator = port
-    content {
-      from_port   = port.value
-      to_port     = port.value
-      protocol    = var.inbound_protocol
-      cidr_blocks = local.anywhere
+      content {
+      from_port   = ingress.value.internal
+      to_port     = ingress.value.external
+      protocol    = ingress.value.protocol
+      cidr_blocks = [ingress.value.CidrBlock]
     }
-  }
+  }  
   tags = {
     Name = "allow_tls"
   }

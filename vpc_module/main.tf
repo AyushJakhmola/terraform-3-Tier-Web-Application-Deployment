@@ -24,9 +24,9 @@ resource "aws_nat_gateway" "sample_ngw" {
 }
 #creating public subnets
 resource "aws_subnet" "public_vpc_subnet" {
-  count             = length(var.public_subnet_cidr)
+  count             = var.PublicSubnetCount
   vpc_id            = aws_vpc.sample_project.id
-  cidr_block        = var.public_subnet_cidr[count.index]
+  cidr_block        = cidrsubnet(var.vpc_cidr, var.CidrBits, count.index)
   availability_zone = data.aws_availability_zones.available.names[count.index]
 
   tags = {
@@ -35,12 +35,13 @@ resource "aws_subnet" "public_vpc_subnet" {
 }
 #creating private subnets
 resource "aws_subnet" "private_vpc_subnet" {
-  count             = length(var.private_subnet_cidr)
+  count             = var.PrivateSubnetCount
   vpc_id            = aws_vpc.sample_project.id
-  cidr_block        = var.private_subnet_cidr[count.index]
+  cidr_block        = cidrsubnet(var.vpc_cidr, var.CidrBits, count.index)
   availability_zone = data.aws_availability_zones.available.names[count.index]
+
   tags = {
-    Name = "private-subnets-${data.aws_availability_zones.available.names[count.index]}"
+    Name = "public-subnets-${data.aws_availability_zones.available.names[count.index]}"
   }
 }
 
@@ -48,7 +49,7 @@ resource "aws_subnet" "private_vpc_subnet" {
 resource "aws_route_table" "public_route" {
   vpc_id = aws_vpc.sample_project.id
   route {
-    cidr_block = "0.0.0.0/0"
+    cidr_block = local.anywhere
     gateway_id = aws_internet_gateway.sample_igw.id
   }
   tags = {
@@ -60,7 +61,7 @@ resource "aws_route_table" "public_route" {
 resource "aws_route_table" "private_route" {
   vpc_id = aws_vpc.sample_project.id
   route {
-    cidr_block = "0.0.0.0/0"
+    cidr_block = local.anywhere
     gateway_id = aws_nat_gateway.sample_ngw.id
   }
   tags = {
@@ -70,14 +71,14 @@ resource "aws_route_table" "private_route" {
 
 #associate public subnets to route table
 resource "aws_route_table_association" "public_subnet_associate" {
-  count          = length(var.public_subnet_cidr)
+  count          = var.PublicSubnetCount
   subnet_id      = aws_subnet.public_vpc_subnet[count.index].id
   route_table_id = aws_route_table.public_route.id
 }
 
 #associate private subnets to rute table 
 resource "aws_route_table_association" "private_subnet_associate" {
-  count          = length(var.private_subnet_cidr)
+  count          = var.PrivateSubnetCount
   subnet_id      = aws_subnet.private_vpc_subnet[count.index].id
   route_table_id = aws_route_table.private_route.id
 }

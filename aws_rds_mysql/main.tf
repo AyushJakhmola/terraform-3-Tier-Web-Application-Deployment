@@ -1,16 +1,14 @@
-
 resource "aws_security_group" "db_sg" {
   vpc_id = var.sample_vpc_id
   dynamic "ingress" {
     for_each = var.db_inbound_ports
-    iterator = port
-    content {
-      from_port   = port.value
-      to_port     = port.value
-      protocol    = var.inbound_protocol
-      cidr_blocks = ["0.0.0.0/0"]
+      content {
+      from_port   = ingress.value.internal
+      to_port     = ingress.value.external
+      protocol    = ingress.value.protocol
+      cidr_blocks = [ingress.value.CidrBlock]
     }
-  }
+  }  
   tags = {
     Name = "db_sg"
   }
@@ -31,8 +29,8 @@ resource "aws_db_instance" "default" {
   engine_version       = var.EngineVersion
 #  username             = var.dbUserPassword.User_name
 #  password             = var.dbUserPassword.Password
-  username             = var.username
-  password             = var.password
+  username             = var.dbUsernamePassword.User_name
+  password             = var.dbUsernamePassword.Password
   db_name          = var.my_db_name
   skip_final_snapshot  = true
   allow_major_version_upgrade = false

@@ -21,6 +21,3 @@ variable "instance_key_name" {
 
 variable "associate_public_ip_address" {
 }
-
-variable "inbound_protocol" {
-  }
